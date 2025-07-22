@@ -1,5 +1,5 @@
 from flask import Flask
-import data_collector
+from . import data_collector
 
 app = Flask(__name__)
 
