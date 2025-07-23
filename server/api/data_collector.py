@@ -1,4 +1,6 @@
 import requests
+import json
+import os
 
 def get_repositories_list(username:str) -> list[dict]:
 
@@ -17,6 +19,7 @@ def get_repositories_list(username:str) -> list[dict]:
     
     else:
         return []
+
 
 def get_repo_files(username:str, repo:str, branch:str) -> list[dict]:
     response = requests.get(f"https://api.github.com/repos/{username}/{repo}/git/trees/{branch}?recursive=1") 
@@ -43,27 +46,33 @@ def get_repo_files(username:str, repo:str, branch:str) -> list[dict]:
         return {"error": "Failed to fetch data"}
 
 
-def calculate_language_usage(repos: dict) -> dict:
-    
+def calculate_language_usage(repos: dict, config: dict) -> dict:
+
+    extensions = []
+
+    for config_lang in config["languages"]:
+        if config_lang["name"] not in config["disable_languages"]:
+            extensions.extend(config_lang["extensions"])
+
     languages_usage = {}
 
     for repo in repos:
         for file_extension in repo["files"]:
-            
-            if file_extension not in languages_usage:
-                languages_usage[file_extension] = {
-                    "size": repo["files"][file_extension],
-                    "amount": 1
-                } 
-            if file_extension in languages_usage:
-                languages_usage[file_extension]["size"] += repo["files"][file_extension]
-                languages_usage[file_extension]["amount"] += 1
+            if file_extension in extensions:   
+                if file_extension not in languages_usage:
+                    languages_usage[file_extension] = {
+                        "size": repo["files"][file_extension],
+                        "amount": 1
+                    } 
+                if file_extension in languages_usage:
+                    languages_usage[file_extension]["size"] += repo["files"][file_extension]
+                    languages_usage[file_extension]["amount"] += 1
     
     return languages_usage
         
 
-def calculate_percentage_usage(languages_usage: dict,size_weight = 0.5,amount_weight = 0.5) -> dict:
-    
+def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=0.5, amount_weight=0.5) -> dict:
+
     for language in languages_usage:
         total_size = sum(language["size"] for language in languages_usage.values())
         total_amount = sum(language["amount"] for language in languages_usage.values())
@@ -75,8 +84,6 @@ def calculate_percentage_usage(languages_usage: dict,size_weight = 0.5,amount_we
     return languages_usage
 
     
-
-
 def fetch_data_from_api(username): 
     
     repos = get_repositories_list(username)
@@ -87,8 +94,12 @@ def fetch_data_from_api(username):
     for repo in repos:
         repo["files"] = get_repo_files(username, repo["name"], repo["default_branch"])
 
-    languages_usage = calculate_language_usage(repos)
-    percentage_usage = calculate_percentage_usage(languages_usage)
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'default_config.json')
+    with open(config_path, 'r') as file:
+        config = json.load(file)
+    
+    languages_usage = calculate_language_usage(repos, config)
+    percentage_usage = calculate_percentage_usage(languages_usage, config)
 
     return percentage_usage 
 
