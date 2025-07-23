@@ -1,11 +1,18 @@
 import requests
 import json
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def get_repositories_list(username:str) -> list[dict]:
+    
+    headers = {
+        "Authorization": f"Bearer {os.getenv('TOKEN')}",
+        "Accept": "application/vnd.github+json"
+    }
 
-
-    response = requests.get(f"https://api.github.com/users/{username}/repos")
+    response = requests.get(f"https://api.github.com/users/{username}/repos",headers=headers)
 
     repos = []
 
@@ -22,7 +29,12 @@ def get_repositories_list(username:str) -> list[dict]:
 
 
 def get_repo_files(username:str, repo:str, branch:str) -> list[dict]:
-    response = requests.get(f"https://api.github.com/repos/{username}/{repo}/git/trees/{branch}?recursive=1") 
+    headers = {
+        "Authorization": f"Bearer {os.getenv('TOKEN')}",
+        "Accept": "application/vnd.github+json"
+    }
+
+    response = requests.get(f"https://api.github.com/repos/{username}/{repo}/git/trees/{branch}?recursive=1",headers=headers) 
 
     files = {}
     path_extension = ""
@@ -71,12 +83,13 @@ def calculate_language_usage(repos: dict, config: dict) -> dict:
     return languages_usage
         
 
-def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=0.5, amount_weight=0.5) -> dict:
+def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=0.6, amount_weight=0.4) -> dict:
+
+    total_size = sum(language["size"] for language in languages_usage.values())
+    total_amount = sum(language["amount"] for language in languages_usage.values())
 
     for language in languages_usage:
-        total_size = sum(language["size"] for language in languages_usage.values())
-        total_amount = sum(language["amount"] for language in languages_usage.values())
-        
+       
         languages_usage[language]["percentage_size"] = (languages_usage[language]["size"] / total_size) * 100
         languages_usage[language]["percentage_amount"] = (languages_usage[language]["amount"] / total_amount) * 100
         languages_usage[language]["total_percentage"] = (languages_usage[language]["percentage_size"]  * size_weight) + (languages_usage[language]["percentage_amount"] * amount_weight)
@@ -84,11 +97,16 @@ def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=
     final_usage = {}
 
     for lang in languages_usage:
-
         for config_lang in config["languages"]:
 
             if lang in config_lang["extensions"]:
-                final_usage[config_lang["name"]] += round(languages_usage[lang]["total_percentage"],2)
+
+                if config_lang["name"] in final_usage:
+                    final_usage[config_lang["name"]] += round(languages_usage[lang]["total_percentage"],1)
+
+                if config_lang["name"] not in final_usage:
+                    final_usage[config_lang["name"]] = round(languages_usage[lang]["total_percentage"],1)
+                
 
     return final_usage
 

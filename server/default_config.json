@@ -14,7 +14,7 @@
         },
         {
             "name": "JavaScript",
-            "extensions": ["js", "mjs", "cjs", "jsx"],
+            "extensions": ["js", "mjs", "cjs", "jsx","ejs"],
             "color": "#F1E05A",
             "image": "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png"
         },
