@@ -1,6 +1,6 @@
 import requests
 
-def get_repositories_list(username) -> list[dict]:
+def get_repositories_list(username:str) -> list[dict]:
 
 
     response = requests.get(f"https://api.github.com/users/{username}/repos")
@@ -18,7 +18,7 @@ def get_repositories_list(username) -> list[dict]:
     else:
         return []
 
-def get_repo_files(username, repo, branch) -> list[dict]:
+def get_repo_files(username:str, repo:str, branch:str) -> list[dict]:
     response = requests.get(f"https://api.github.com/repos/{username}/{repo}/git/trees/{branch}?recursive=1") 
 
     files = {}
@@ -42,17 +42,55 @@ def get_repo_files(username, repo, branch) -> list[dict]:
     else:
         return {"error": "Failed to fetch data"}
 
+
+def calculate_language_usage(repos: dict) -> dict:
+    
+    languages_usage = {}
+
+    for repo in repos:
+        for file_extension in repo["files"]:
+            
+            if file_extension not in languages_usage:
+                languages_usage[file_extension] = {
+                    "size": repo["files"][file_extension],
+                    "amount": 1
+                } 
+            if file_extension in languages_usage:
+                languages_usage[file_extension]["size"] += repo["files"][file_extension]
+                languages_usage[file_extension]["amount"] += 1
+    
+    return languages_usage
+        
+
+def calculate_percentage_usage(languages_usage: dict,size_weight = 0.5,amount_weight = 0.5) -> dict:
+    
+    for language in languages_usage:
+        total_size = sum(language["size"] for language in languages_usage.values())
+        total_amount = sum(language["amount"] for language in languages_usage.values())
+        
+        languages_usage[language]["percentage_size"] = (languages_usage[language]["size"] / total_size) * 100
+        languages_usage[language]["percentage_amount"] = (languages_usage[language]["amount"] / total_amount) * 100
+        languages_usage[language]["total_percentage"] = (languages_usage[language]["percentage_size"]  * size_weight) + (languages_usage[language]["percentage_amount"] * amount_weight)
+
+    return languages_usage
+
+    
+
+
 def fetch_data_from_api(username): 
     
     repos = get_repositories_list(username)
 
-    if repos:
-        for repo in repos:
-            repo["files"] = get_repo_files(username, repo["name"], repo["default_branch"])
-
-
     if not repos:
         return {"error": "Failed to fetch data"}
-    
-    return repos
 
+    for repo in repos:
+        repo["files"] = get_repo_files(username, repo["name"], repo["default_branch"])
+
+    languages_usage = calculate_language_usage(repos)
+    percentage_usage = calculate_percentage_usage(languages_usage)
+
+    return percentage_usage 
+
+
+   
