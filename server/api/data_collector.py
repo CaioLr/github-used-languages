@@ -81,7 +81,16 @@ def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=
         languages_usage[language]["percentage_amount"] = (languages_usage[language]["amount"] / total_amount) * 100
         languages_usage[language]["total_percentage"] = (languages_usage[language]["percentage_size"]  * size_weight) + (languages_usage[language]["percentage_amount"] * amount_weight)
 
-    return languages_usage
+    final_usage = {}
+
+    for lang in languages_usage:
+
+        for config_lang in config["languages"]:
+
+            if lang in config_lang["extensions"]:
+                final_usage[config_lang["name"]] += round(languages_usage[lang]["total_percentage"],2)
+
+    return final_usage
 
     
 def fetch_data_from_api(username): 
@@ -102,6 +111,3 @@ def fetch_data_from_api(username):
     percentage_usage = calculate_percentage_usage(languages_usage, config)
 
     return percentage_usage 
-
-
-   
