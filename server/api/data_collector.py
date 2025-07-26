@@ -107,11 +107,12 @@ def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=
                 if config_lang["name"] not in final_usage:
                     final_usage[config_lang["name"]] = round(languages_usage[lang]["total_percentage"],1)
                 
+    sorted_final_usage = dict(sorted(final_usage.items(), key=lambda item: item[1], reverse=True))
 
-    return final_usage
+    return sorted_final_usage
 
     
-def fetch_data_from_api(username): 
+def fetch_data_from_api(username, config) -> dict: 
     
     repos = get_repositories_list(username)
 
@@ -120,10 +121,6 @@ def fetch_data_from_api(username):
 
     for repo in repos:
         repo["files"] = get_repo_files(username, repo["name"], repo["default_branch"])
-
-    config_path = os.path.join(os.path.dirname(__file__), '..', 'default_config.json')
-    with open(config_path, 'r') as file:
-        config = json.load(file)
     
     languages_usage = calculate_language_usage(repos, config)
     percentage_usage = calculate_percentage_usage(languages_usage, config)
