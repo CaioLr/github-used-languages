@@ -81,7 +81,7 @@ def calculate_language_usage(repos: dict, config: dict) -> dict:
                     languages_usage[file_extension]["amount"] += 1
     
     return languages_usage
-        
+
 
 def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=0.6, amount_weight=0.4) -> dict:
 
@@ -102,17 +102,15 @@ def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=
             if lang in config_lang["extensions"]:
 
                 if config_lang["name"] in final_usage:
-                    final_usage[config_lang["name"]] += round(languages_usage[lang]["total_percentage"],1)
+                    final_usage[config_lang["name"]] += languages_usage[lang]["total_percentage"]
 
                 if config_lang["name"] not in final_usage:
-                    final_usage[config_lang["name"]] = round(languages_usage[lang]["total_percentage"],1)
+                    final_usage[config_lang["name"]] = languages_usage[lang]["total_percentage"]
                 
-    sorted_final_usage = dict(sorted(final_usage.items(), key=lambda item: item[1], reverse=True))
+    return final_usage
 
-    return sorted_final_usage
 
-    
-def fetch_data_from_api(username, config) -> dict: 
+def fetch_data_from_api(username, config) -> list: 
     
     repos = get_repositories_list(username)
 
@@ -124,5 +122,6 @@ def fetch_data_from_api(username, config) -> dict:
     
     languages_usage = calculate_language_usage(repos, config)
     percentage_usage = calculate_percentage_usage(languages_usage, config)
+    sorted_percentage_usage = sorted(percentage_usage.items(), key=lambda item: item[1], reverse=True)
 
-    return percentage_usage 
+    return sorted_percentage_usage

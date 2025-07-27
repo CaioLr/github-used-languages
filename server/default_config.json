@@ -1,9 +1,9 @@
 {
-    "title": "Most Used Languages",
+    "title": "🏆 Most Used Languages 🏆",
+    "title_color": "#828282",
     "custom_image": "",
     "disable_languages": [
-        "HTML",
-        "CSS"
+        "HTML"
     ],
     "languages": [
         {
@@ -22,7 +22,7 @@
             "name": "Java",
             "extensions": ["java"],
             "color": "#B07219",
-            "image": "https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg"
+            "image": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg"
         },
         {
             "name": "C++",
@@ -34,7 +34,7 @@
             "name": "C",
             "extensions": ["c", "h"],
             "color": "#555555",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/1/19/C_Programming_Language.svg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/C_Programming_Language.svg/1853px-C_Programming_Language.svg.png"
         },
         {
             "name": "C#",
@@ -46,7 +46,7 @@
             "name": "PHP",
             "extensions": ["php", "phtml", "php3", "php4", "php5"],
             "color": "#4F5D95",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/2/27/PHP-logo.svg"
+            "image": "https://images.seeklogo.com/logo-png/26/1/php-logo-png_seeklogo-265704.png"
         },
         {
             "name": "Ruby",
@@ -94,7 +94,7 @@
             "name": "Shell",
             "extensions": ["sh", "bash"],
             "color": "#89E051",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Bash_Logo_%28transparent%29.svg"
+            "image": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/bash/bash-plain.svg"
         },
         {
             "name": "HTML",
@@ -130,7 +130,7 @@
             "name": "SQL",
             "extensions": ["sql","sqlite", "sqlite3"],
             "color": "#e38c00",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/8/87/Sql_data_base_with_logo.png"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Sql_data_base_with_logo.png/800px-Sql_data_base_with_logo.png"
         },
         {
             "name": "GraphQL",
