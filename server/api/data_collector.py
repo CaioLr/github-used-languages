@@ -1,10 +1,11 @@
 import requests
 import json, os
 from dotenv import load_dotenv
+from typing import Optional
 
 load_dotenv()
 
-def get_repositories_list(username:str) -> list[dict]:
+def get_repositories_list(username:str) -> Optional[list[dict]]:
     
     headers = {
         "Authorization": f"Bearer {os.getenv('TOKEN')}",
@@ -20,6 +21,7 @@ def get_repositories_list(username:str) -> list[dict]:
             repos.append({
                 "name": repo["name"],
                 "default_branch": repo["default_branch"],
+                "pushed_at": repo["pushed_at"]
             })
         return repos
     
@@ -109,9 +111,7 @@ def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=
     return final_usage
 
 
-def fetch_data_from_api(username, config) -> list: 
-    
-    repos = get_repositories_list(username)
+def fetch_data_from_api(username, config, repos) -> list: 
 
     if not repos:
         return {"error": "Failed to fetch data"}

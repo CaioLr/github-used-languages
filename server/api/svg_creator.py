@@ -82,7 +82,7 @@ def donut_chart(data: list,size: float,r: float,stroke_width: float) -> str:
     percentages = []
     colors = []
 
-    for i in range(9):
+    for i in range(len(data)):
         percentages.append(data[i][1])
         colors.append(data[i][2])
 
@@ -93,7 +93,7 @@ def donut_chart(data: list,size: float,r: float,stroke_width: float) -> str:
         
         svg +=  f"""
             <circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{color}" stroke-width="{stroke_width}" stroke-dasharray="{dash_array}" stroke-dashoffset="{dash_offset:.2f}" transform="rotate(-90 {cx} {cy})">
-                <animate attributeName="stroke-dashoffset" from="0" to="{dash_offset:.2f}" dur="2.3s" fill="freeze" />
+                <animate attributeName="stroke-dashoffset" from="0" to="{dash_offset:.2f}" dur="2s" fill="freeze" />
             </circle>
         """
 
