@@ -1,5 +1,4 @@
-import base64
-import requests
+import base64, requests
 
 def language_list(complete_percentage_usage: list) -> str:
     
