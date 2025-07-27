@@ -1,4 +1,4 @@
-import base64, requests
+import base64, requests, math
 
 def language_list(complete_percentage_usage: list) -> str:
     
@@ -12,17 +12,26 @@ def language_list(complete_percentage_usage: list) -> str:
             break
         if item:
             list += f"""
-                <text x="0" y="{y-1}" fill="#888888" font-size="9"  font-family="Helvetica">#{count}</text>
+                <text x="0" y="{y-1}" fill="#888888" font-size="9"  font-family="Helvetica">
+                    #{count}
+                    <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
+                    <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" />
+                </text>
                 <image
                     href="{"data:"+str(item[4])+";base64,"+str(item[3])}"
                     x="15"
                     y="{y-15}"
                     width="22"
                     height="22"
-                />
+                >
+                    <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
+                    <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" />
+                </image>
                 <text x="41" y="{y}" fill="#000000" font-size="12"  font-family="Helvetica">
                     <tspan fill="#888888">{item[0]}   </tspan>
                     <tspan fill="#828282" dx="5" font-weight="bold">{round(item[1])}%</tspan>
+                    <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
+                    <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" />
                 </text>
             """
             y += 35
@@ -36,23 +45,62 @@ def language_list(complete_percentage_usage: list) -> str:
             break
         if item:
             list += f"""
-                <text x="140" y="{y-1}" fill="#888888" font-size="9"  font-family="Helvetica">#{count}</text>
+                <text x="140" y="{y-1}" fill="#888888" font-size="9"  font-family="Helvetica">
+                    #{count}
+                    <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
+                    <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" />
+                </text>
                 <image
                     href="{"data:"+str(item[4])+";base64,"+str(item[3])}"
                     x="155"
                     y="{y-15}"
                     width="22"
                     height="22"
-                />
+                >
+                    <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
+                    <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" />
+                </image>
                 <text x="181" y="{y}" fill="#000000" font-size="12"  font-family="Helvetica">
                     <tspan fill="#888888">{item[0]}</tspan>
                     <tspan fill="#828282" dx="5" font-weight="bold">{round(item[1])}%</tspan>
+                    <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
+                    <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" />
                 </text>
             """
             y += 35
             count+=1
 
     return list
+
+
+def donut_chart(data: list,size: float,r: float,stroke_width: float) -> str:
+    svg = ""
+    offset = 0
+    per = 2 * math.pi * r
+    cx = cy = size / 2
+
+    percentages = []
+    colors = []
+
+    for i in range(9):
+        percentages.append(data[i][1])
+        colors.append(data[i][2])
+
+    for i, (p, color) in enumerate(zip(percentages, colors)):
+        dash_length = per * (p / 100)
+        dash_array = f"{dash_length:.2f} {per:.2f}"
+        dash_offset = -offset
+        
+        svg +=  f"""
+            <circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{color}" stroke-width="{stroke_width}" stroke-dasharray="{dash_array}" stroke-dashoffset="{dash_offset:.2f}" transform="rotate(-90 {cx} {cy})">
+                <animate attributeName="stroke-dashoffset" from="0" to="{dash_offset:.2f}" dur="2.3s" fill="freeze" />
+            </circle>
+        """
+
+        offset += dash_length
+
+    return svg
+
 
 def create_svg(percentage_usage: list, config: dict) -> str:
     
@@ -84,7 +132,9 @@ def create_svg(percentage_usage: list, config: dict) -> str:
        <g transform="translate(307, 57)">
        <svg x="0" y="0" width="150" height="150" viewBox="0 0 150 150">
 
-            <circle cx="75" cy="75" r="60" fill="none" stroke="black" stroke-width="10"/>
+            <circle cx="75" cy="75" r="60" fill="none" stroke="white" stroke-width="10"/>
+
+            {donut_chart(complete_percentage_usage,150,60,10)}
 
             <defs>
                 <clipPath id="circleView">
