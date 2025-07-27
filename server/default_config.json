@@ -130,7 +130,7 @@
             "name": "SQL",
             "extensions": ["sql","sqlite", "sqlite3"],
             "color": "#e38c00",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Sql_data_base_with_logo.png/120px-Sql_data_base_with_logo.png"
+            "image": "https://miro.medium.com/v2/resize:fit:720/format:webp/1*rOzoncElqdqIAThTj8Idgg.png"
         },
         {
             "name": "GraphQL",
