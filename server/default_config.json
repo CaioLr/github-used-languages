@@ -34,7 +34,7 @@
             "name": "C",
             "extensions": ["c", "h"],
             "color": "#555555",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/archive/3/35/20220802133510%21The_C_Programming_Language_logo.svg/120px-The_C_Programming_Language_logo.svg.png"
+            "image": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/c/c-original.svg"
         },
         {
             "name": "C#",
@@ -46,7 +46,7 @@
             "name": "PHP",
             "extensions": ["php", "phtml", "php3", "php4", "php5"],
             "color": "#4F5D95",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/PHP-logo.svg/330px-PHP-logo.svg.png"
+            "image": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg"
         },
         {
             "name": "Ruby",
@@ -130,7 +130,7 @@
             "name": "SQL",
             "extensions": ["sql","sqlite", "sqlite3"],
             "color": "#e38c00",
-            "image": "https://miro.medium.com/v2/resize:fit:720/format:webp/1*rOzoncElqdqIAThTj8Idgg.png"
+            "image": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azuresqldatabase/azuresqldatabase-original.svg"
         },
         {
             "name": "GraphQL",
