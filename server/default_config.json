@@ -58,7 +58,7 @@
             "name": "Go",
             "extensions": ["go"],
             "color": "#00ADD8",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/0/05/Go_Logo_Blue.svg"
+            "image": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg"
         },
         {
             "name": "Rust",
