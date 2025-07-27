@@ -1,3 +1,6 @@
+import base64
+import requests
+
 def language_list(complete_percentage_usage: list) -> str:
     
     list = ""
@@ -12,7 +15,7 @@ def language_list(complete_percentage_usage: list) -> str:
             list += f"""
                 <text x="0" y="{y-1}" fill="#888888" font-size="9"  font-family="Helvetica">#{count}</text>
                 <image
-                    href="{item[3]}"
+                    href="{"data:"+str(item[4])+";base64,"+str(item[3])}"
                     x="15"
                     y="{y-15}"
                     width="22"
@@ -36,7 +39,7 @@ def language_list(complete_percentage_usage: list) -> str:
             list += f"""
                 <text x="140" y="{y-1}" fill="#888888" font-size="9"  font-family="Helvetica">#{count}</text>
                 <image
-                    href="{item[3]}"
+                    href="{"data:"+str(item[4])+";base64,"+str(item[3])}"
                     x="155"
                     y="{y-15}"
                     width="22"
@@ -55,11 +58,12 @@ def language_list(complete_percentage_usage: list) -> str:
 def create_svg(percentage_usage: list, config: dict) -> str:
     
     color = {lang["name"]: lang["color"] for lang in config["languages"]}
-    image = {lang["name"]: lang["image"] for lang in config["languages"]}
+    image = {lang["name"]: base64.b64encode(requests.get(lang["image"]).content).decode('utf-8') for lang in config["languages"]}
+    content_type = {lang["name"]: requests.get(lang["image"]).headers["Content-Type"] for lang in config["languages"]}
 
     # list comprehension
     complete_percentage_usage = [
-        (name, percent, color.get(name), image.get(name))
+        (name, percent, color.get(name), image.get(name), content_type.get(name))
         for name, percent in percentage_usage
     ]
 
@@ -89,7 +93,17 @@ def create_svg(percentage_usage: list, config: dict) -> str:
                 </clipPath>
             </defs>
             <image
-                href="{config['custom_image'] if config['custom_image'] != "" else complete_percentage_usage[0][3]}"
+                href="{(
+                    "data:"
+                    +str(requests.get(config['custom_image']).headers["Content-Type"])
+                    +";base64,"
+                    +str(base64.b64encode(requests.get(config['custom_image']).content).decode('utf-8'))
+                ) if config['custom_image'] != "" else (
+                    "data:"
+                    +str(complete_percentage_usage[0][4])
+                    +";base64,"
+                    +str(complete_percentage_usage[0][3])
+                )}"
                 x="{0 if config['custom_image'] != "" else 40}"
                 y="{0 if config['custom_image'] != "" else 40}"
                 width="{150 if config['custom_image'] != "" else 70}"

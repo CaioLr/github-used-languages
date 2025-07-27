@@ -46,7 +46,7 @@
             "name": "PHP",
             "extensions": ["php", "phtml", "php3", "php4", "php5"],
             "color": "#4F5D95",
-            "image": "https://images.seeklogo.com/logo-png/26/1/php-logo-png_seeklogo-265704.png"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/PHP-logo.svg/2560px-PHP-logo.svg.png"
         },
         {
             "name": "Ruby",
