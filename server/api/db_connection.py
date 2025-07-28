@@ -15,7 +15,7 @@ def init_db() -> None:
         CREATE TABLE IF NOT EXISTS user_svg (
             id SERIAL PRIMARY KEY,
             username TEXT UNIQUE,
-            last_update TIMESTAMP,
+            last_update TIMESTAMP WITH TIME ZONE,
             svg BYTEA
         )
     ''')
