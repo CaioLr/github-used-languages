@@ -1,8 +1,7 @@
 from flask import Flask, Response, request
-from . import data_collector, svg_creator
+from . import data_collector, svg_creator,scripts_db
 import os, json, requests, base64
 from dotenv import load_dotenv
-from ..db import scripts_db
 from datetime import datetime, timezone
 
 load_dotenv()
@@ -17,7 +16,7 @@ def get_used_languages(username):
     last_push = None
 
     for repo in repositories_list:
-        repo_last_push =  datetime.fromisoformat(repo['pushed_at'].replace("Z", "+00:00")).timestamp()
+        repo_last_push =  datetime.fromisoformat(repo['pushed_at'].replace("Z", "+00:00"))
         if (not last_push or last_push < repo_last_push):
             last_push = repo_last_push
 
@@ -54,13 +53,13 @@ def get_used_languages(username):
     if db_last_update:
         scripts_db.update_user_svg({
             'username':username,
-            'last_update':datetime.now(timezone.utc).timestamp(),
+            'last_update':datetime.now(timezone.utc),
             'svg': svg.encode('utf-8')
         })
     if not db_last_update:
         scripts_db.insert_user_svg({
             'username':username,
-            'last_update':datetime.now(timezone.utc).timestamp(),
+            'last_update':datetime.now(timezone.utc),
             'svg': svg.encode('utf-8')
         })
         scripts_db.check_amount()
