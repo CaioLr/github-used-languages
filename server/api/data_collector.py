@@ -1,6 +1,6 @@
 import requests
 import json, os
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore
 from typing import Optional
 
 load_dotenv()
@@ -111,7 +111,7 @@ def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=
     return final_usage
 
 
-def fetch_data_from_api(username, config, repos) -> list: 
+def fetch_data(username, config, repos) -> list: 
 
     if not repos:
         return {"error": "Failed to fetch data"}

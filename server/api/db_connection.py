@@ -1,5 +1,5 @@
-import os, psycopg2
-from dotenv import load_dotenv
+import os, psycopg2 # type: ignore
+from dotenv import load_dotenv # type: ignore
 
 load_dotenv()
 
@@ -16,7 +16,8 @@ def init_db() -> None:
             id SERIAL PRIMARY KEY,
             username TEXT UNIQUE,
             last_update TIMESTAMP WITH TIME ZONE,
-            svg BYTEA
+            svg_light BYTEA,
+            svg_dark BYTEA
         )
     ''')
     conn.commit()
@@ -33,7 +34,7 @@ def get_user_last_update(username: str):
 def get_user_svg(username: str):
     conn = get_conn()
     c = conn.cursor()
-    c.execute("SELECT svg FROM user_svg WHERE username = %s;",(username,))
+    c.execute("SELECT svg_light, svg_dark FROM user_svg WHERE username = %s;",(username,))
     response = c.fetchone()
     conn.close()
     return response
@@ -41,14 +42,14 @@ def get_user_svg(username: str):
 def insert_user_svg(data: dict) -> None:
     conn = get_conn()
     c = conn.cursor()
-    c.execute("INSERT INTO user_svg (username,last_update,svg) VALUES (%s,%s,%s)",(data['username'], data['last_update'], data['svg']))
+    c.execute("INSERT INTO user_svg (username,last_update,svg_light,svg_dark) VALUES (%s,%s,%s,%s)",(data['username'], data['last_update'], data['svg_light'], data['svg_dark']))
     conn.commit()
     conn.close()
 
 def update_user_svg(data: dict) -> None:
     conn = get_conn()
     c = conn.cursor()
-    c.execute("UPDATE user_svg SET last_update = %s, svg = %s WHERE username = %s",(data['last_update'], data['svg'], data['username']))
+    c.execute("UPDATE user_svg SET last_update = %s, svg_light = %s, svg_dark = %s WHERE username = %s",(data['last_update'], data['svg_light'], data['svg_dark'], data['username']))
     conn.commit()
     conn.close()
 
@@ -59,7 +60,7 @@ def check_amount() -> None:
     amount = c.fetchone()
     amount = int(amount[0])
 
-    if amount >= 7500:
+    if amount >= 4500:
         c.execute("WITH first AS (SELECT id FROM user_svg ORDER BY id ASC LIMIT 1) DELETE FROM user_svg WHERE id IN (SELECT id FROM first)")
         conn.commit()
 

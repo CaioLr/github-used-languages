@@ -1,6 +1,6 @@
 import base64, requests, math
 
-def language_list(complete_percentage_usage: list) -> str:
+def language_list(complete_percentage_usage: list, colors: dict) -> str:
     
     list = ""
     y = 25
@@ -12,7 +12,7 @@ def language_list(complete_percentage_usage: list) -> str:
             break
         if item:
             list += f"""
-                <text x="0" y="{y-1}" fill="#888888" font-size="9"  font-family="Helvetica">
+                <text x="0" y="{y-1}" fill="{colors['text_color']}" font-size="9"  font-family="Helvetica">
                     #{count}
                     <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
                     <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" />
@@ -27,9 +27,9 @@ def language_list(complete_percentage_usage: list) -> str:
                     <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
                     <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" />
                 </image>
-                <text x="41" y="{y}" fill="#000000" font-size="12"  font-family="Helvetica">
-                    <tspan fill="#888888">{item[0]}   </tspan>
-                    <tspan fill="#828282" dx="5" font-weight="bold">{round(item[1])}%</tspan>
+                <text x="41" y="{y}" font-size="12"  font-family="Helvetica">
+                    <tspan fill="{colors['text_color']}">{item[0]}   </tspan>
+                    <tspan fill="{colors['percentage_color']}" dx="5" font-weight="bold">{round(item[1])}%</tspan>
                     <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
                     <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" />
                 </text>
@@ -45,7 +45,7 @@ def language_list(complete_percentage_usage: list) -> str:
             break
         if item:
             list += f"""
-                <text x="140" y="{y-1}" fill="#888888" font-size="9"  font-family="Helvetica">
+                <text x="140" y="{y-1}" fill="{colors['text_color']}" font-size="9"  font-family="Helvetica">
                     #{count}
                     <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
                     <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" />
@@ -60,9 +60,9 @@ def language_list(complete_percentage_usage: list) -> str:
                     <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
                     <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" />
                 </image>
-                <text x="181" y="{y}" fill="#000000" font-size="12"  font-family="Helvetica">
-                    <tspan fill="#888888">{item[0]}</tspan>
-                    <tspan fill="#828282" dx="5" font-weight="bold">{round(item[1])}%</tspan>
+                <text x="181" y="{y}" font-size="12"  font-family="Helvetica">
+                    <tspan fill="{colors['text_color']}">{item[0]}</tspan>
+                    <tspan fill="{colors['percentage_color']}" dx="5" font-weight="bold">{round(item[1])}%</tspan>
                     <animateTransform attributeName="transform" type="translate" from="0 20" to="0 0" dur="1s" fill="freeze" />
                     <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" />
                 </text>
@@ -101,38 +101,26 @@ def donut_chart(data: list,size: float,r: float,stroke_width: float) -> str:
 
     return svg
 
-
-def create_svg(percentage_usage: list, config: dict) -> str:
-    
-    color = {lang["name"]: lang["color"] for lang in config["languages"]}
-    image = {lang["name"]: base64.b64encode(requests.get(lang["image"]).content).decode('utf-8') for lang in config["languages"]}
-    content_type = {lang["name"]: requests.get(lang["image"]).headers["Content-Type"] for lang in config["languages"]}
-
-    # list comprehension
-    complete_percentage_usage = [
-        (name, percent, color.get(name), image.get(name), content_type.get(name))
-        for name, percent in percentage_usage
-    ]
-
+def create_svg(percentage_usage: list, config: dict, colors: dict, complete_percentage_usage: list) -> str:
     svg = f"""
     <svg width="465" height="250" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 465 250" fill="none">
-       <rect width="465" height="250" fill="#fefeff" stroke="gray" stroke-width="1" stroke-opacity="1" rx="5"/>
+       <rect width="465" height="250" fill="{colors['background_color']}" stroke="{colors['border_color']}" stroke-width="1" stroke-opacity="1" rx="5"/>
         <g transform="translate(0, 35)">
-            <text x="22" y="0" fill="{config['title_color']}" font-size="16" font-family="Segoe UI, Helvetica" font-weight="bold">
+            <text x="22" y="0" fill="{colors['title_color']}" font-size="16" font-family="Segoe UI, Helvetica" font-weight="bold">
                 {config['title']}
             </text>
         </g>
         <g transform="translate(22, 52)">
         <svg x="0" y="0" width="280" height="180" viewBox="0 0 280 180">   
             
-            {language_list(complete_percentage_usage)}
+            {language_list(complete_percentage_usage, colors)}
 
         </svg>
        </g>
        <g transform="translate(307, 57)">
        <svg x="0" y="0" width="150" height="150" viewBox="0 0 150 150">
 
-            <circle cx="75" cy="75" r="60" fill="none" stroke="white" stroke-width="10"/>
+            <circle cx="75" cy="75" r="60" fill="none" stroke="{colors['background_color']}" stroke-width="10"/>
 
             {donut_chart(complete_percentage_usage,150,60,10)}
 
@@ -165,7 +153,7 @@ def create_svg(percentage_usage: list, config: dict) -> str:
        <g transform="translate(307, 212)">
        <svg x="0" y="0" width="150" height="20" viewBox="0 0 150 20">
         <a xlink:href="https://github.com/CaioLr/github-used-languages" target="_blank">
-            <text x="110" y="15" fill="#888888" font-size="5"  font-family="Helvetica">
+            <text x="110" y="15" fill="{colors['text_color']}" font-size="5"  font-family="Helvetica">
                 Made by CaioLr
             </text>
         </a>
@@ -174,5 +162,22 @@ def create_svg(percentage_usage: list, config: dict) -> str:
      </svg>
 
     """
+
     return svg
+
+def get_svg(percentage_usage: list, config: dict, colors: dict) -> list[str,str]:
+    
+    color = {lang["name"]: lang["color"] for lang in config["languages"]}
+    image = {lang["name"]: base64.b64encode(requests.get(lang["image"]).content).decode('utf-8') for lang in config["languages"]}
+    content_type = {lang["name"]: requests.get(lang["image"]).headers["Content-Type"] for lang in config["languages"]}
+
+    # list comprehension
+    complete_percentage_usage = [
+        (name, percent, color.get(name), image.get(name), content_type.get(name))
+        for name, percent in percentage_usage
+    ]
+
+    svg_pair = (create_svg(percentage_usage, config, colors[0], complete_percentage_usage), create_svg(percentage_usage, config, colors[1], complete_percentage_usage))
+
+    return svg_pair
 
