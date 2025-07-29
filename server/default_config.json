@@ -12,7 +12,7 @@
         "title_color": "#E0E0E0",
         "text_color": "#CCCCCC",
         "percentage_color": "#BBBBBB",
-        "background_color": "#404040",
+        "background_color": "#20202a",
         "border_color": "#101010"
     },
     "disable_languages": [
