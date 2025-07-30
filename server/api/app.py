@@ -68,7 +68,9 @@ def get_used_languages(username):
         })
         db_connection.check_amount()
 
-    return Response(svg, mimetype='image/svg+xml')
+    response_svg = svg[1] if theme_arg == 'dark' else svg[0]
+
+    return Response(response_svg, mimetype='image/svg+xml')
 
 if __name__ == '__main__':
     app.run(debug=True)
