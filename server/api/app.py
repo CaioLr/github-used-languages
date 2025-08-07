@@ -15,6 +15,9 @@ def get_used_languages(username):
 
     # =================== Getting the check information to avoid unnecessary requests ===================
     repositories_list = data_collector.get_repositories_list(username)
+    if not repositories_list:
+        return Response("No repositories found.")
+    
     db_last_update = db_connection.get_user_last_update(username)
 
     last_push = None

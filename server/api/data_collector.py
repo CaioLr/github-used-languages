@@ -16,7 +16,7 @@ def get_repositories_list(username:str) -> Optional[list[dict]]:
 
     repos = []
 
-    if response.status_code == 200:
+    try:
         for repo in response.json():
             repos.append({
                 "name": repo["name"],
@@ -25,8 +25,8 @@ def get_repositories_list(username:str) -> Optional[list[dict]]:
             })
         return repos
     
-    else:
-        return []
+    except:
+        return "Failed to fetch data"
 
 
 def get_repo_files(username:str, repo:str, branch:str) -> list[dict]:
@@ -40,7 +40,7 @@ def get_repo_files(username:str, repo:str, branch:str) -> list[dict]:
     files = {}
     path_extension = ""
 
-    if response.status_code == 200:
+    try:
         for file in response.json()["tree"]:
             if file["type"] == "blob":
                 if "." in file["path"]:
@@ -55,8 +55,8 @@ def get_repo_files(username:str, repo:str, branch:str) -> list[dict]:
                          files[path_extension] += file["size"]
         
         return files
-    else:
-        return {"error": "Failed to fetch data"}
+    except:
+        return "Failed to fetch data"
 
 
 def calculate_language_usage(repos: dict, config: dict) -> dict:
