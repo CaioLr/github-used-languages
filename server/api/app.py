@@ -13,6 +13,8 @@ def get_used_languages(username):
     theme_arg = request.args.get('theme')
     db_connection.init_db()
 
+    username = username.lower()
+
     # =================== Getting the check information to avoid unnecessary requests ===================
     repositories_list = data_collector.get_repositories_list(username)
     if not repositories_list:

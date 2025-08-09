@@ -60,7 +60,7 @@ def check_amount() -> None:
     amount = c.fetchone()
     amount = int(amount[0])
 
-    if amount >= 4500:
+    if amount >= 700:
         c.execute("WITH first AS (SELECT id FROM user_svg ORDER BY id ASC LIMIT 1) DELETE FROM user_svg WHERE id IN (SELECT id FROM first)")
         conn.commit()
 
