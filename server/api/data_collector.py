@@ -18,11 +18,12 @@ def get_repositories_list(username:str) -> Optional[list[dict]]:
 
     try:
         for repo in response.json():
-            repos.append({
-                "name": repo["name"],
-                "default_branch": repo["default_branch"],
-                "pushed_at": repo["pushed_at"]
-            })
+            if not repo["fork"]:
+                repos.append({
+                    "name": repo["name"],
+                    "default_branch": repo["default_branch"],
+                    "pushed_at": repo["pushed_at"]
+                })   
         return repos
     
     except:
