@@ -87,8 +87,10 @@ def get_used_languages_v2(username):
     ascii_type = request.args.get('ascii-type')
     ascii_size = request.args.get('ascii-size')
     theme_arg = request.args.get('theme')
+    config_arg_path = request.args.get('config')
     username = username.lower()
     db_connection.init_db()
+
 
     if ascii_size:
         ascii_size = int(ascii_size)
