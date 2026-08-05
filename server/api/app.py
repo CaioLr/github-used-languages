@@ -1,8 +1,14 @@
-from flask import Flask, Response, request
-from . import data_collector, db_connection, svg_creator
-import os, json, requests, base64
-from dotenv import load_dotenv # type: ignore
+import base64
+import json
+import os
 from datetime import datetime, timezone
+
+import requests
+from dotenv import load_dotenv  # type: ignore
+from flask import Flask, Response, request
+
+from .v1 import data_collector, db_connection, svg_creator
+from .v2 import data_collector_v2, db_connection_v2, svg_creator_v2
 
 load_dotenv()
 app = Flask(__name__)
@@ -19,7 +25,7 @@ def get_used_languages(username):
     repositories_list = data_collector.get_repositories_list(username)
     if not repositories_list:
         return Response("No repositories found.")
-    
+
     db_last_update = db_connection.get_user_last_update(username)
 
     last_push = None
@@ -29,8 +35,7 @@ def get_used_languages(username):
             last_push = repo_last_push
 
     # =================== Checking if DB is the updated one, if so, return the SVG from DB ===================
-    if db_last_update:
-        if last_push < db_last_update[0]:
+    if db_last_update and last_push < db_last_update[0]:
             db_svg = db_connection.get_user_svg(username)
             db_svg = bytes(db_svg[1]).decode('utf-8') if theme_arg == 'dark' else bytes(db_svg[0]).decode('utf-8')
             return Response(db_svg, mimetype='image/svg+xml')
@@ -46,7 +51,7 @@ def get_used_languages(username):
             config = json.loads(base64.b64decode(response['content']).decode('utf-8'))
         except:
             config_arg_path = None
-        
+
     if not config_arg_path:
         config_path = os.path.join(os.path.dirname(__file__), '..', 'default_config.json')
         with open(config_path, 'r', encoding='utf-8') as file:
@@ -76,6 +81,81 @@ def get_used_languages(username):
     response_svg = svg[1] if theme_arg == 'dark' else svg[0]
 
     return Response(response_svg, mimetype='image/svg+xml')
+
+@app.route('/v2/<username>')
+def get_used_languages_v2(username):
+    ascii_type = request.args.get('ascii-type')
+    ascii_size = request.args.get('ascii-size')
+    theme_arg = request.args.get('theme')
+    username = username.lower()
+    db_connection.init_db()
+
+    if ascii_size:
+        ascii_size = int(ascii_size)
+    else:
+        ascii_size = None
+
+    # =================== Getting the check information to avoid unnecessary requests ===================
+    repositories_list = data_collector.get_repositories_list(username)
+    if not repositories_list:
+        return Response("No repositories found.")
+
+    db_last_update = db_connection.get_user_last_update(username)
+
+    last_push = None
+    for repo in repositories_list:
+        repo_last_push =  datetime.fromisoformat(repo['pushed_at'].replace("Z", "+00:00"))
+        if (not last_push or last_push < repo_last_push):
+            last_push = repo_last_push
+
+    # =================== Checking if DB is the updated one, if so, return the SVG from DB ===================
+    if db_last_update and last_push < db_last_update[0]:
+            db_svg = db_connection_v2.get_user_svg(username)
+            db_svg = bytes(db_svg[1]).decode('utf-8') if theme_arg == 'dark' else bytes(db_svg[0]).decode('utf-8')
+            return Response(db_svg, mimetype='image/svg+xml')
+
+    # =================== Getting the config ===================
+    if config_arg_path:
+        headers = {
+            "Authorization": f"Bearer {os.getenv('TOKEN')}",
+            "Accept": "application/vnd.github+json"
+        }
+        try:
+            response = requests.get(f'https://api.github.com/repos/{username}/{username}/contents/{config_arg_path}',headers=headers).json()
+            config = json.loads(base64.b64decode(response['content']).decode('utf-8'))
+        except:
+            config_arg_path = None
+
+    if not config_arg_path:
+        config_path = os.path.join(os.path.dirname(__file__), '..', 'default_config.json')
+        with open(config_path, 'r', encoding='utf-8') as file:
+            config = json.load(file)
+
+    # =================== Obtaining SVG and updating/inserting on DB ===================
+    colors = (config['v2']['v2_colors_light_theme'], config['v2']['v2_colors_dark_theme'])
+    data = data_collector_v2.fetch_data(username, config, repositories_list)
+    svg  = svg_creator_v2.get_svg(data, config, colors, ascii_type, ascii_size)
+
+    if db_last_update: # ========= Update =========
+        db_connection_v2.update_user_svg({
+            'username':username,
+            'last_update':datetime.now(timezone.utc),
+            'svg_light': svg[0].encode('utf-8'),
+            'svg_dark': svg[1].encode('utf-8')
+        })
+    if not db_last_update: # ========= Insert =========
+        db_connection_v2.insert_user_svg({
+            'username':username,
+            'last_update':datetime.now(timezone.utc),
+            'svg_light': svg[0].encode('utf-8'),
+            'svg_dark': svg[1].encode('utf-8')
+        })
+        db_connection.check_amount()
+
+    response_svg = svg[1] if theme_arg == 'dark' else svg[0]
+
+    return Response(response_svg, mimetype='image/svg+xml')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

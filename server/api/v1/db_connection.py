@@ -1,5 +1,7 @@
-import os, psycopg2 # type: ignore
-from dotenv import load_dotenv # type: ignore
+import os  # type: ignore
+
+import psycopg2
+from dotenv import load_dotenv  # type: ignore
 
 load_dotenv()
 

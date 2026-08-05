@@ -1,7 +1,11 @@
-import base64, requests, math
+import base64
+import math
+
+import requests
+
 
 def language_list(complete_percentage_usage: list, colors: dict) -> str:
-    
+
     list = ""
     y = 25
     count = 1
@@ -90,7 +94,7 @@ def donut_chart(data: list,size: float,r: float,stroke_width: float) -> str:
         dash_length = per * (p / 100)
         dash_array = f"{dash_length:.2f} {per:.2f}"
         dash_offset = -offset
-        
+
         svg +=  f"""
             <circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{color}" stroke-width="{stroke_width}" stroke-dasharray="{dash_array}" stroke-dashoffset="{dash_offset:.2f}" transform="rotate(-90 {cx} {cy})">
                 <animate attributeName="stroke-dashoffset" from="0" to="{dash_offset:.2f}" dur="2s" fill="freeze" />
@@ -111,8 +115,8 @@ def create_svg(percentage_usage: list, config: dict, colors: dict, complete_perc
             </text>
         </g>
         <g transform="translate(22, 52)">
-        <svg x="0" y="0" width="280" height="180" viewBox="0 0 280 180">   
-            
+        <svg x="0" y="0" width="280" height="180" viewBox="0 0 280 180">
+
             {language_list(complete_percentage_usage, colors)}
 
         </svg>
@@ -166,7 +170,7 @@ def create_svg(percentage_usage: list, config: dict, colors: dict, complete_perc
     return svg
 
 def get_svg(percentage_usage: list, config: dict, colors: dict) -> list[str,str]:
-    
+
     color = {lang["name"]: lang["color"] for lang in config["languages"]}
     image = {lang["name"]: base64.b64encode(requests.get(lang["image"]).content).decode('utf-8') for lang in config["languages"]}
     content_type = {lang["name"]: requests.get(lang["image"]).headers["Content-Type"] for lang in config["languages"]}
@@ -180,4 +184,3 @@ def get_svg(percentage_usage: list, config: dict, colors: dict) -> list[str,str]
     svg_pair = (create_svg(percentage_usage, config, colors[0], complete_percentage_usage), create_svg(percentage_usage, config, colors[1], complete_percentage_usage))
 
     return svg_pair
-

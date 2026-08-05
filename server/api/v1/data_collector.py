@@ -1,33 +1,34 @@
-import requests
-import json, os
-from dotenv import load_dotenv # type: ignore
+import json
+import os
 from typing import Optional
+
+import requests
+from dotenv import load_dotenv  # type: ignore
 
 load_dotenv()
 
 def get_repositories_list(username:str) -> Optional[list[dict]]:
-    
+
     headers = {
         "Authorization": f"Bearer {os.getenv('TOKEN')}",
         "Accept": "application/vnd.github+json"
     }
 
-    response = requests.get(f"https://api.github.com/users/{username}/repos",headers=headers)
+    try:
+        response = requests.get(f"https://api.github.com/users/{username}/repos",headers=headers)
+    except:
+        return None
 
     repos = []
 
-    try:
-        for repo in response.json():
-            if not repo["fork"]:
-                repos.append({
-                    "name": repo["name"],
-                    "default_branch": repo["default_branch"],
-                    "pushed_at": repo["pushed_at"]
-                })   
-        return repos
-    
-    except:
-        return "Failed to fetch data"
+    for repo in response.json():
+        if not repo["fork"]:
+            repos.append({
+                "name": repo["name"],
+                "default_branch": repo["default_branch"],
+                "pushed_at": repo["pushed_at"]
+            })
+    return repos
 
 
 def get_repo_files(username:str, repo:str, branch:str) -> list[dict]:
@@ -36,28 +37,27 @@ def get_repo_files(username:str, repo:str, branch:str) -> list[dict]:
         "Accept": "application/vnd.github+json"
     }
 
-    response = requests.get(f"https://api.github.com/repos/{username}/{repo}/git/trees/{branch}?recursive=1",headers=headers) 
+    response = requests.get(f"https://api.github.com/repos/{username}/{repo}/git/trees/{branch}?recursive=1",headers=headers)
 
     files = {}
     path_extension = ""
 
     try:
         for file in response.json()["tree"]:
-            if file["type"] == "blob":
-                if "." in file["path"]:
+            if file["type"] == "blob" and "." in file["path"]:
 
                     path_extension = file["path"].rsplit('.', 1)[1]
 
                     if path_extension not in files:
                         files[path_extension] = file["size"]
-                        
-                        
+
+
                     if path_extension in files:
                          files[path_extension] += file["size"]
-        
+
         return files
     except:
-        return "Failed to fetch data"
+        return None
 
 
 def calculate_language_usage(repos: dict, config: dict) -> dict:
@@ -72,16 +72,16 @@ def calculate_language_usage(repos: dict, config: dict) -> dict:
 
     for repo in repos:
         for file_extension in repo["files"]:
-            if file_extension in extensions:   
+            if file_extension in extensions:
                 if file_extension not in languages_usage:
                     languages_usage[file_extension] = {
                         "size": repo["files"][file_extension],
                         "amount": 1
-                    } 
+                    }
                 if file_extension in languages_usage:
                     languages_usage[file_extension]["size"] += repo["files"][file_extension]
                     languages_usage[file_extension]["amount"] += 1
-    
+
     return languages_usage
 
 
@@ -91,7 +91,7 @@ def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=
     total_amount = sum(language["amount"] for language in languages_usage.values())
 
     for language in languages_usage:
-       
+
         languages_usage[language]["percentage_size"] = (languages_usage[language]["size"] / total_size) * 100
         languages_usage[language]["percentage_amount"] = (languages_usage[language]["amount"] / total_amount) * 100
         languages_usage[language]["total_percentage"] = (languages_usage[language]["percentage_size"]  * size_weight) + (languages_usage[language]["percentage_amount"] * amount_weight)
@@ -108,18 +108,18 @@ def calculate_percentage_usage(languages_usage: dict, config: dict, size_weight=
 
                 if config_lang["name"] not in final_usage:
                     final_usage[config_lang["name"]] = languages_usage[lang]["total_percentage"]
-                
+
     return final_usage
 
 
-def fetch_data(username, config, repos) -> list: 
+def fetch_data(username, config, repos) -> list:
 
     if not repos:
         return {"error": "Failed to fetch data"}
 
     for repo in repos:
         repo["files"] = get_repo_files(username, repo["name"], repo["default_branch"])
-    
+
     languages_usage = calculate_language_usage(repos, config)
     percentage_usage = calculate_percentage_usage(languages_usage, config)
     sorted_percentage_usage = sorted(percentage_usage.items(), key=lambda item: item[1], reverse=True)

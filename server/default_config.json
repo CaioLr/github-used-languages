@@ -1,5 +1,5 @@
 {
-    "title": "🏆 Most Used Languages 🏆",
+    "title": "Most Used Languages",
     "custom_image": "",
     "colors_light_theme" : {
         "title_color": "#828282",
@@ -176,6 +176,26 @@
             "image": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cassandra/cassandra-original.svg"
         }
 
-    ]
-    
+    ],
+    "v2": {
+      "v2_terminal_user": "root",
+      "v2_terminal_hostname": "debian",
+      "v2_colors_light_theme":{
+        "title_color": "#000000",
+        "terminal_color": "#ce984c",
+        "text_color": "#569bde",
+        "percentage_color": "#828282",
+        "background_color": "#fefeff",
+        "border_color": "#808080"
+      },
+      "v2_colors_dark_theme":{
+        "title_color": "#FFFFFF",
+        "terminal_color": "#e7b56e",
+        "text_color": "#a7d3fd",
+        "percentage_color": "#BBBBBB",
+        "background_color": "#20202a",
+        "border_color": "#101010"
+      }
+    }
+
 }
