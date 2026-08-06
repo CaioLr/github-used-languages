@@ -84,18 +84,12 @@ def get_used_languages(username):
 
 @app.route('/v2/<username>')
 def get_used_languages_v2(username):
-    ascii_type = request.args.get('ascii-type')
-    ascii_size = request.args.get('ascii-size')
     theme_arg = request.args.get('theme')
     config_arg_path = request.args.get('config')
     username = username.lower()
     db_connection.init_db()
 
 
-    if ascii_size:
-        ascii_size = int(ascii_size)
-    else:
-        ascii_size = None
 
     # =================== Getting the check information to avoid unnecessary requests ===================
     repositories_list = data_collector.get_repositories_list(username)
@@ -134,6 +128,16 @@ def get_used_languages_v2(username):
             config = json.load(file)
 
     # =================== Obtaining SVG and updating/inserting on DB ===================
+
+    ascii_type = config['v2']['ascii_type']
+    ascii_size = config['v2']['ascii_size']
+
+    if not ascii_size:
+        ascii_size = {"light": None,"dark": None}
+
+    if not ascii_type:
+        ascii_type = {"light": "","dark": ""}
+
     colors = (config['v2']['v2_colors_light_theme'], config['v2']['v2_colors_dark_theme'])
     data = data_collector_v2.fetch_data(username, config, repositories_list)
     svg  = svg_creator_v2.get_svg(data, config, colors, ascii_type, ascii_size)

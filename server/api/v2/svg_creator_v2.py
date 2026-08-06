@@ -171,7 +171,7 @@ def create_svg(percentage_usage: list, config: dict, colors: dict, complete_perc
 
     return svg
 
-def get_svg(percentage_usage: list, config: dict, colors: dict, ascii_type: str, ascii_size: int|None) -> list[str,str]:
+def get_svg(percentage_usage: list, config: dict, colors: dict, ascii_type: dict, ascii_size: dict) -> list[str]:
 
     color = {lang["name"]: lang["color"] for lang in config["languages"]}
     image = {lang["name"]: base64.b64encode(requests.get(lang["image"]).content).decode('utf-8') for lang in config["languages"]}
@@ -183,6 +183,10 @@ def get_svg(percentage_usage: list, config: dict, colors: dict, ascii_type: str,
         for name, percent in percentage_usage
     ]
 
-    svg_pair = (create_svg(percentage_usage, config, colors[0], complete_percentage_usage, ascii_type, ascii_size), create_svg(percentage_usage, config, colors[1], complete_percentage_usage, ascii_type, ascii_size))
+
+    svg_pair = (
+        create_svg(percentage_usage, config, colors[0], complete_percentage_usage, ascii_type["light"], ascii_size["light"]),
+        create_svg(percentage_usage, config, colors[1], complete_percentage_usage, ascii_type["dark"], ascii_size["dark"])
+    )
 
     return svg_pair
