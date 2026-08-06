@@ -129,10 +129,11 @@ def get_used_languages_v2(username):
 
     # =================== Obtaining SVG and updating/inserting on DB ===================
 
-    ascii_type = config['v2']['ascii_type']
-    ascii_size = config['v2']['ascii_size']
-
-    if not ascii_size:
+    try:
+        ascii_type = config['v2']['ascii_type']
+        ascii_size = config['v2']['ascii_size']
+    except:
+        ascii_type = {"light": "","dark": ""}
         ascii_size = {"light": None,"dark": None}
 
     if not ascii_type:
